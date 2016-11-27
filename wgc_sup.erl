@@ -15,4 +15,4 @@ init(_Args) ->
   {ok, {{one_for_one, 1, 3600},
     [{wgc,
       {wgc, start_link, []},
-      transient, 1000, worker, [wgc]}]}}.
+      permanent, 1000, worker, [wgc]}]}}.
