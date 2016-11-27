@@ -1,0 +1,22 @@
+112> wgc_sup:start_link().
+{ok,<0.241.0>}
+113> wgc:move(wolf).      
+left: [goat,cabbage], right: [wolf], Farmer is at right side
+"Game over: you lose!"
+114> wgc:status().        
+"left: [wolf,goat,cabbage], right: [], Farmer is at left side"
+115> wgc:move(goat).
+"left: [wolf,cabbage], right: [goat], Farmer is at right side"
+116> wgc:move().    
+"left: [wolf,cabbage], right: [goat], Farmer is at left side"
+117> wgc:move(cabbage).
+"left: [wolf], right: [cabbage,goat], Farmer is at right side"
+118> wgc:move(goat).   
+"left: [goat,wolf], right: [cabbage], Farmer is at left side"
+119> wgc:move(wolf).
+"left: [goat], right: [wolf,cabbage], Farmer is at right side"
+120> wgc:move().    
+"left: [goat], right: [wolf,cabbage], Farmer is at left side"
+121> wgc:move(goat).
+left: [], right: [goat,wolf,cabbage], Farmer is at right side
+"Game over: you won!"
