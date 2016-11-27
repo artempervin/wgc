@@ -50,12 +50,11 @@ handle_call(_Msg, _From, State) ->
 
 handle_cast(_Msg, State) -> {noreply, State}.
 handle_info(_Msg, State) -> {noreply, State}.
+code_change(_OldVsn, State, _Extra) ->  {ok, State}.
 terminate(_Reason, State) ->
   io:format("~s~n", [state_to_string(State)]).
 
-code_change(_OldVsn, State, _Extra) ->  {ok, State}.
-
-% private functions
+%% private functions
 process_move(S=#state{farmer_position=FarmerPosition}) ->
   NewState = S#state{farmer_position=other_side(FarmerPosition)},
   Reply = validate_state(NewState),
