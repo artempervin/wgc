@@ -30,7 +30,7 @@ move(true, What, Where) ->
 status() ->
   gen_server:call(?MODULE, status).
 
-%% gen_server callbacks
+%%% gen_server callbacks
 handle_call({move, nil, _Where}, _From, S) ->
   process_move(S);
 handle_call({move, What, Where}, _From, S=#state{farmer_position=FarmerPosition}) ->
@@ -54,7 +54,7 @@ code_change(_OldVsn, State, _Extra) ->  {ok, State}.
 terminate(_Reason, State) ->
   io:format("~s~n", [state_to_string(State)]).
 
-%% private functions
+%%% private functions
 process_move(S=#state{farmer_position=FarmerPosition}) ->
   NewState = S#state{farmer_position=other_side(FarmerPosition)},
   Reply = validate_state(NewState),
@@ -93,18 +93,18 @@ transfer(What, left, #state{left=Left, right=Right}) ->
 validate_move(What, Where, #state{left=Left, right=Right, farmer_position=FarmerPosition}) ->
   validate_move(What, Where, Left, Right, Where =:= other_side(FarmerPosition)).
 %% moving 'What' from Left to Right
-validate_move(What, right, Left, _Right, true) ->
+validate_move(What, right, Left, _Right, _IsFarmerPresent=true) ->
   lists:member(What, Left);
 %% moving 'What' from Right to Left
-validate_move(What, left, _Left, Right, true) ->
+validate_move(What, left, _Left, Right, _IsFarmerPresent=true) ->
   lists:member(What, Right);
 %% cannot move because Farmer is on the wrong side
-validate_move(_,_,_,_,false) ->
+validate_move(_,_,_,_, _IsFarmerPresent=false) ->
   false.
 
 select_side(Left, Right) ->
-  {SideElementsCount, SideElements, SideName} = max({length(Left), Left, left}, {length(Right), Right, right}),
-  {SideName, lists:sort(SideElements), SideElementsCount}.
+  {_, SideElements, SideName} = max({length(Left), Left, left}, {length(Right), Right, right}),
+  {SideName, lists:sort(SideElements)}.
 
 %% everything was transfered to another side
 validate_state(#state{left=[]}) ->
@@ -112,18 +112,11 @@ validate_state(#state{left=[]}) ->
 %% transfer in progress, check if player has failed
 validate_state(#state{left=Left, right=Right, farmer_position=FarmerPosition}) ->
   %% only need to consider a side that have more elements
-  {SideName, Elements, Count} = select_side(Left, Right),
+  {SideName, Elements} = select_side(Left, Right),
   IsFarmerPresent = SideName =:= FarmerPosition,
-  validate_state(Elements, Count, IsFarmerPresent).
-validate_state(List, Count, IsFarmerPresent) when Count =:= 2 ->
-  First  = lists:nth(1, List),
-  Second = lists:nth(2, List),
-  validate_side(First, Second, IsFarmerPresent);
-validate_state(_, Count, false) when Count =:= 3 ->
-  failure;
-validate_state(_, Count, true) when Count =:= 3 ->
-  ok.
+  validate_side(Elements, IsFarmerPresent).
 
-validate_side(cabbage, goat, false) -> failure;
-validate_side(goat, wolf, false)    -> failure;
-validate_side(_, _, _)              -> ok.
+validate_side([cabbage, goat, wolf], _IsFarmerPresent=false) -> failure;
+validate_side([cabbage, goat], _IsFarmerPresent=false)       -> failure;
+validate_side([goat, wolf], _IsFarmerPresent=false)          -> failure;
+validate_side(_, _)                                          -> ok.
