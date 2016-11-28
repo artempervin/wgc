@@ -60,9 +60,6 @@ process_move(S=#state{farmer_position=FarmerPosition}) ->
   Reply = validate_state(NewState),
   reply_new_state(Reply, NewState).
 
-other_side(left) -> right;
-other_side(_)    -> left.
-
 reply_new_state(failure, State) ->
   {stop, normal, "Game over: you lose!", State};
 reply_new_state(success, State) ->
@@ -72,10 +69,12 @@ reply_new_state(ok, State) ->
 
 reply_cant_move(What, Where, S) ->
   {reply, lists:flatten(io_lib:format("Can't move to ~p~s! ~s", [Where, elements_to_string(What), state_to_string(S)])), S}.
-elements_to_string(nil) ->
-  [];
-elements_to_string(What) ->
-  lists:flatten(io_lib:format(" with ~p", [What])).
+
+other_side(left) -> right;
+other_side(_)    -> left.
+
+elements_to_string(nil)  -> [];
+elements_to_string(What) -> lists:flatten(io_lib:format(" with ~p", [What])).
 
 state_to_string(#state{left=Left, right=Right, farmer_position=FarmerPosition}) ->
   lists:flatten(io_lib:format("left: ~p, right: ~p, Farmer is at ~p side", [Left, Right, FarmerPosition])).
@@ -99,7 +98,7 @@ validate_move(What, right, Left, _Right, true) ->
 validate_move(What, left, _Left, Right, true) ->
   lists:member(What, Right);
 %% cannot move because Farmer is on the wrong side
-validate_move(_,_,_,_,false) ->
+validate_move(_,_,_,_, false) ->
   false.
 
 select_side(Left, Right) ->
