@@ -5,14 +5,14 @@
 
 -record(state, {left=[], right=[], farmer_position}).
 -define(SIDES, [left, right]).
--define(ELEMENTS, [wolf, goat, cabbage]).
+-define(THINGS, [wolf, goat, cabbage]).
 
 %%% Public API
 start_link() ->
   gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 init(_Args) ->
-  {ok, #state{left=?ELEMENTS, farmer_position=left}}.
+  {ok, #state{left=?THINGS, farmer_position=left}}.
 
 %% move to other side without anything
 move() ->
@@ -21,9 +21,9 @@ move() ->
 %% move to other side with something
 move(What) ->
   FarmerPosition = gen_server:call(?MODULE, get_current_side),
-  move(lists:member(What, ?ELEMENTS), What, other_side(FarmerPosition)).
+  move(lists:member(What, ?THINGS), What, other_side(FarmerPosition)).
 move(false, What, _) ->
-  io:format("Invalid element to move: ~p! Only ~p accepted!~n", [What, ?ELEMENTS]);
+  io:format("Invalid element to move: ~p! Only ~p accepted!~n", [What, ?THINGS]);
 move(true, What, Where) ->
   gen_server:call(?MODULE, {move, What, Where}).
 
